@@ -2,6 +2,28 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <queries>
+        <intent>
+            <action android:name="com.ucar.intent.action.UCAR" />
+            <category android:name="com.ucar.intent.category.UCAR" />
+        </intent>
+        <intent>
+            <action android:name="com.ucar.intent.action.UCAR" />
+            <category android:name="com.ucar.intent.category.MAP_PREVIEW" />
+        </intent>
+        <package android:name="com.autonavi.minimap" />
+        <package android:name="com.baidu.BaiduMap" />
+        <package android:name="com.tencent.qqmusic" />
+        <package android:name="com.ximalaya.ting.android" />
+        <package android:name="com.tencent.map" />
+        <package android:name="com.kugou.android.lite" />
+        <package android:name="cn.kuwo.kwmusichd" />
+        <package android:name="com.luna.music" />
+        <package android:name="com.netease.cloudmusic" />
+        <package android:name="com.kugou.android" />
+        <package android:name="cmccwm.mobilemusic" />
+    </queries>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -14,11 +36,9 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.Amap">
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FF1A1A1A">
+
+    <GridView
+        android:id="@+id/app_grid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:horizontalSpacing="16dp"
+        android:verticalSpacing="16dp"
+        android:numColumns="4"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/empty_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="没有找到 UCAR 应用\n请确保已安装支持车联的应用"
+        android:textAlignment="center"
+        android:textColor="#88FFFFFF"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
+</FrameLayout>

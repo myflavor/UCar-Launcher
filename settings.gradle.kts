@@ -22,6 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Amap"
+rootProject.name = "UCar-Launcher"
 include(":app")
- 
