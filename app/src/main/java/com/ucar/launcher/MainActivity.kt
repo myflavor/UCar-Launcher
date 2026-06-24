@@ -28,6 +28,21 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // 沉浸式状态栏
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
+        if (android.os.Build.VERSION.SDK_INT >= 30) {
+            window.insetsController?.systemBarsBehavior =
+                android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            )
+        }
+
         val gridView = findViewById<GridView>(R.id.app_grid)
         val emptyText = findViewById<TextView>(R.id.empty_text)
 
@@ -49,72 +64,21 @@ class MainActivity : Activity() {
     }
 
     private fun queryUcarApps(): List<UcarApp> {
-        val apps = mutableListOf<UcarApp>()
-        val seen = mutableSetOf<String>()
-
-        // 方式1：queryIntentActivities 全局查询
         val intent = Intent("com.ucar.intent.action.UCAR").apply {
             addCategory("com.ucar.intent.category.UCAR")
         }
-        val resolveInfos = packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
-        for (info in resolveInfos) {
-            val pkg = info.activityInfo.packageName
-            if (pkg != packageName && !seen.contains(pkg)) {
-                seen.add(pkg)
-                apps.add(UcarApp(
+
+        return packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
+            .filter { it.activityInfo.packageName != packageName }
+            .map { info ->
+                UcarApp(
                     name = info.loadLabel(packageManager).toString(),
-                    packageName = pkg,
+                    packageName = info.activityInfo.packageName,
                     className = info.activityInfo.name,
                     icon = info.loadIcon(packageManager)
-                ))
+                )
             }
-        }
-
-        // 方式2：逐个检查已知包名
-        val knownPackages = listOf(
-            "com.autonavi.minimap",
-            "com.baidu.BaiduMap",
-            "com.tencent.qqmusic",
-            "com.ximalaya.ting.android",
-            "com.tencent.map",
-            "com.kugou.android.lite",
-            "cn.kuwo.kwmusichd",
-            "com.tencent.qqmusicpad",
-            "com.luna.music",
-            "com.netease.cloudmusic",
-            "com.kugou.android",
-            "cmccwm.mobilemusic",
-            "com.yueme.itv",
-        )
-
-        for (pkg in knownPackages) {
-            if (seen.contains(pkg)) continue
-            try {
-                val checkIntent = Intent("com.ucar.intent.action.UCAR").apply {
-                    addCategory("com.ucar.intent.category.UCAR")
-                    setPackage(pkg)
-                }
-                var infos = packageManager.queryIntentActivities(checkIntent, PackageManager.MATCH_ALL)
-
-                if (infos.isEmpty()) {
-                    checkIntent.removeCategory("com.ucar.intent.category.UCAR")
-                    checkIntent.addCategory("com.ucar.intent.category.MAP_PREVIEW")
-                    infos = packageManager.queryIntentActivities(checkIntent, PackageManager.MATCH_ALL)
-                }
-
-                if (infos.isNotEmpty()) {
-                    seen.add(pkg)
-                    apps.add(UcarApp(
-                        name = infos[0].loadLabel(packageManager).toString(),
-                        packageName = pkg,
-                        className = infos[0].activityInfo.name,
-                        icon = infos[0].loadIcon(packageManager)
-                    ))
-                }
-            } catch (_: Exception) {}
-        }
-
-        return apps.sortedBy { it.name }
+            .sortedBy { it.name }
     }
 
     private fun launchUcarApp(app: UcarApp) {
