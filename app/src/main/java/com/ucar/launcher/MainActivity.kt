@@ -62,14 +62,18 @@ class MainActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
         )
 
-        val apps = queryUcarApps()
+        // 检测是否是从 CarWith 投屏列表启动（UCAR 模式）
+        val isUcarMode = intent?.action == "com.ucar.intent.action.UCAR" ||
+                intent?.getBooleanExtra("isUcarMode", false) == true
+
+        val apps = queryUcarApps(isUcarMode)
 
         setContent {
-            UcarLauncherScreen(apps) { launchUcarApp(it) }
+            UcarLauncherScreen(apps, isUcarMode = isUcarMode) { launchUcarApp(it) }
         }
     }
 
-    private fun queryUcarApps(): List<UcarApp> {
+    private fun queryUcarApps(isUcarMode: Boolean = false): List<UcarApp> {
         val intent = Intent("com.ucar.intent.action.UCAR").apply {
             addCategory("com.ucar.intent.category.UCAR")
         }
@@ -108,7 +112,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-internal fun UcarLauncherScreen(apps: List<UcarApp>, onLaunch: (UcarApp) -> Unit) {
+internal fun UcarLauncherScreen(apps: List<UcarApp>, isUcarMode: Boolean = false, onLaunch: (UcarApp) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -127,7 +131,7 @@ internal fun UcarLauncherScreen(apps: List<UcarApp>, onLaunch: (UcarApp) -> Unit
                 // 标题栏
                 val statusBarPadding = WindowInsets.statusBars.asPaddingValues()
                 Text(
-                    text = "车联启动器",
+                    text = if (isUcarMode) "车联投屏启动器" else "车联启动器",
                     color = Color(0xCCFFFFFF),
                     fontSize = 20.sp,
                     modifier = Modifier.padding(

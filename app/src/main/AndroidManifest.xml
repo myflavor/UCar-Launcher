@@ -41,6 +41,10 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="com.ucar.intent.action.UCAR" />
+                <category android:name="com.ucar.intent.category.UCAR" />
+            </intent-filter>
         </activity>
     </application>
 
