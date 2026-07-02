@@ -10,7 +10,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.ucar.launcher"
+        applicationId = "com.baidu.BaiduMap"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
