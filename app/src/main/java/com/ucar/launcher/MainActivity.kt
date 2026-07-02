@@ -112,14 +112,26 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun launchUcarApp(app: UcarApp) {
-        // CarWith 调试设置页 - 在手机端打开
+        // CarWith 调试设置页 - 直接写 Settings.Global 打开调试模式
         if (app.className?.contains("CarPhoneDebugActivity") == true) {
             try {
-                startActivity(Intent("miui.intent.action.UCAR_CONNECT_SETTINGS").apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                })
-            } catch (e: Exception) {
-                Toast.makeText(this, "启动失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                // 开启调试模式（mode=2 可在车机上跳转）
+                android.provider.Settings.Global.putInt(
+                    contentResolver, "ucar_ae_projection_debug_mode", 2
+                )
+                Toast.makeText(this, "已开启投屏应用跳转模式", Toast.LENGTH_SHORT).show()
+            } catch (e: SecurityException) {
+                // 没权限写 Settings.Global，尝试用系统方式打开
+                try {
+                    val intent = android.content.Intent().apply {
+                        action = android.content.Intent.action.MAIN
+                        `package` = "com.miui.carlink"
+                        addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    startActivity(intent)
+                } catch (e2: Exception) {
+                    Toast.makeText(this, "需要 root 权限，请用 adb:\nadb shell settings put global ucar_ae_projection_debug_mode 2", Toast.LENGTH_LONG).show()
+                }
             }
             return
         }
