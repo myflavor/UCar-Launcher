@@ -73,12 +73,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun queryUcarApps(): List<UcarApp> {
+    private fun queryUcarApps(isUcarMode: Boolean = false): List<UcarApp> {
         val intent = Intent("com.ucar.intent.action.UCAR").apply {
             addCategory("com.ucar.intent.category.UCAR")
         }
 
-        return packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
+        val apps = packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
             .filter { it.activityInfo.packageName != packageName }
             .map { info ->
                 UcarApp(
@@ -89,9 +89,41 @@ class MainActivity : ComponentActivity() {
                 )
             }
             .sortedBy { it.name }
+            .toMutableList()
+
+        // 手机端显示 CarWith 调试设置入口（车机投射时不显示）
+        if (!isUcarMode) {
+            try {
+                val ri = packageManager.resolveActivity(
+                    Intent("miui.intent.action.UCAR_CONNECT_SETTINGS"), 0
+                )
+                if (ri != null) {
+                    apps.add(UcarApp(
+                        name = "CarWith 调试设置",
+                        packageName = ri.activityInfo.packageName,
+                        className = ri.activityInfo.name,
+                        icon = ri.loadIcon(packageManager)
+                    ))
+                }
+            } catch (_: Exception) {}
+        }
+
+        return apps
     }
 
     private fun launchUcarApp(app: UcarApp) {
+        // CarWith 调试设置页 - 在手机端打开
+        if (app.className?.contains("CarPhoneDebugActivity") == true) {
+            try {
+                startActivity(Intent("miui.intent.action.UCAR_CONNECT_SETTINGS").apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                })
+            } catch (e: Exception) {
+                Toast.makeText(this, "启动失败: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+            return
+        }
+
         val intent = Intent("com.ucar.intent.action.UCAR").apply {
             addCategory("com.ucar.intent.category.UCAR")
             putExtra("isUcarMode", true)
